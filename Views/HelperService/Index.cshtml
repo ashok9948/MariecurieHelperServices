@@ -1,0 +1,44 @@
+﻿@using InterviewTask.Models;
+@model List<HelperServiceModel>
+
+    <h1>Marie Curie Helper Services</h1>
+
+    @foreach (var service in Model)
+    {
+    var isOpen = IsServiceOpen(service); // Implement IsServiceOpen method
+
+    <div class="@(isOpen ? " bg-color-donation-orange" : "bg-color-light-grey" )">
+        <h3>@service.Title</h3>
+        <p>@service.Description</p>
+
+        @if (isOpen)
+        {
+        <p>OPEN TODAY UNTIL @service.GetClosingTime()</p>
+        }
+        else
+        {
+        <p>CLOSED - REOPENS @(service.NextOpenDay) at @service.GetOpeningTime()</p>
+        }
+    </div>
+    }
+
+    @functions {
+    bool IsServiceOpen(HelperServiceModel service)
+    {
+    var now = DateTime.Now;
+    var currentDay = (int)now.DayOfWeek;
+
+    // Check if the service is open on the current day
+    if (service.IsOpenOnDay(currentDay))
+    {
+    // Check if the current time is within opening and closing hours
+    var currentHour = now.Hour;
+    var openingHour = service.MondayOpeningHours[currentDay-1];
+    var closingHour = service.MondayOpeningHours[currentDay];
+
+    return currentHour >= openingHour && currentHour < closingHour;
+    }
+
+    return false;
+    }
+    }
